@@ -1,14 +1,27 @@
 from django.conf import settings
 from django.db import models
 from PIL import Image as PILImage
+from django.contrib.auth.models import User
 
+
+
+class AnnotationBatch(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    title = models.CharField(max_length=255, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title or f"Batch {self.id}"
 
 class AnnotatedImage(models.Model):
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
+    batch = models.ForeignKey(
+        AnnotationBatch,
         on_delete=models.CASCADE,
-        related_name='annotated_images'
+        related_name="images",
+        null=True,
+        blank=True,
     )
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     image = models.ImageField(upload_to='annotations/')
     title = models.CharField(max_length=255, blank=True)

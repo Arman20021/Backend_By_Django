@@ -1,6 +1,5 @@
 from rest_framework import serializers
-
-from .models import AnnotatedImage, PolygonAnnotation
+from .models import AnnotationBatch, AnnotatedImage, PolygonAnnotation
 
 
 class PointSerializer(serializers.Serializer):
@@ -79,3 +78,15 @@ class AnnotatedImageSerializer(serializers.ModelSerializer):
             return url
 
         return None
+
+class AnnotationBatchSerializer(serializers.ModelSerializer):
+    images = AnnotatedImageSerializer(many=True, read_only=True)
+    image_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = AnnotationBatch
+        fields = ["id", "user", "title", "images", "image_count", "created_at"]
+        read_only_fields = ["id", "user", "images", "image_count", "created_at"]
+
+    def get_image_count(self, obj):
+        return obj.images.count()
